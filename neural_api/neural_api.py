@@ -19,19 +19,11 @@ responses = {
 
 @router.post("/seen", responses=responses)
 async def add_to_seen_endpoint(user: UserFromNeuralApi, item: ItemFromNeuralApi):
-    if (
-        user.user_id in app.compare_basket
-        and item.item_id in app.compare_basket[user.user_id]
-    ):
+    if app.compare_basket.is_member(user.user_id, item.item_id):
         return
-    if (
-        user.user_id in app.seen_basket
-        and item.item_id in app.seen_basket[user.user_id]
-    ):
+    if not app.seen_basket.add(user.user_id, item.item_id):
         app.seen_basket.delete(user.user_id, item.item_id)
         app.compare_basket.add(user.user_id, item.item_id)
-        return
-    app.seen_basket.add(user.user_id, item.item_id)
 
 
 @router.post("/cart", responses=responses)
