@@ -35,7 +35,7 @@ async def get_some_from_catalog(first_number: int, last_number: int):
 async def get_some_from_catalog(item_id):
     items = []
     for item in session.execute(
-            select(Item).where(Item.id == item_id)).one():
+            select(Item).where(Item.cte_id == item_id)).one():
         items.append({
             "id": item.id,
             "cte_id": item.cte_id,
