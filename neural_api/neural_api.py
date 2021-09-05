@@ -38,7 +38,8 @@ async def neural_generate(user: UserFromNeuralApi, top_n: int):
     response = await neural_rpc.call(
         json.dumps(
             {
-                "item_id": app.seen_basket[user.user_id] + app.compare_basket[user.user_id] + app.cart_basket[user.user_id],
+                "seen": app.seen_basket[user.user_id] + app.compare_basket[user.user_id],
+                "item_id": app.cart_basket[user.user_id],
                 "top_n": top_n,
             }
         )
