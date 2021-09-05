@@ -45,7 +45,7 @@ class Category(Base):
 
 
 engine = create_engine(
-    "postgresql://postgres:mysecretpassword@localhost:54320/mydatabase"
+    os.environ.get("PSQL_DB")
 )
 Session = sessionmaker(bind=engine)
 session = Session()
