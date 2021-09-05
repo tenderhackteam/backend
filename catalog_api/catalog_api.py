@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from data_models.db_setup import Item, session
+from data_models.db_setup import Item, session, Category
 from sqlalchemy import select, and_
 import json
 
@@ -15,7 +15,7 @@ async def get_some_from_catalog(first_number: int, last_number: int):
             "id": item[0].id,
             "cte_id": item[0].cte_id,
             "cte_name": item[0].cte_name,
-            # "category_id": Item.category_id,
+            "category_id": session.execute(select(Category).where(Category.id == item[0].category_id)).one()[0].name,
             "description": item[0].description,
             "cte_props": item[0].cte_props,
             "regions": item[0].regions,
@@ -40,7 +40,7 @@ async def get_some_from_catalog(item_id):
             "id": item.id,
             "cte_id": item.cte_id,
             "cte_name": item.cte_name,
-            # "category_id": Item.category_id,
+            "category_id": session.execute(select(Category).where(Category.id == item.category_id)).one()[0].name,
             "description": item.description,
             "cte_props": item.cte_props,
             "regions": item.regions,
