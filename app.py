@@ -5,6 +5,7 @@ import configparser
 import asyncio
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from fastapi.middleware.cors import CORSMiddleware
 
 import redis
 import pika
@@ -41,7 +42,19 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 event_loop = asyncio.get_event_loop()
+origins = [
+    "*",
+    "http://localhost",
+    "http://localhost:8080",
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(neural_api.neural_api.router,
                    prefix="/neural", tags=["neural"])
