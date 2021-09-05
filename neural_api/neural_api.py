@@ -43,7 +43,7 @@ async def neural_generate(user: UserFromNeuralApi, top_n: int):
     if not app.redis_client.exists(neural_body):
         neural_rpc = await NeuralRpcClient(app.event_loop).connect()
         response = await neural_rpc.call(neural_body)
-        app.redis_client.set(neural_body)
+        app.redis_client.set(neural_body, response)
         return response
     return app.redis_client.get(neural_body)
 
@@ -59,7 +59,7 @@ async def neural_generate(top_n: int, item_id: int):
     if not app.redis_client.exists(neural_body):
         neural_rpc = await NeuralRpcClient(app.event_loop).connect()
         response = await neural_rpc.call(neural_body)
-        app.redis_client.set(neural_body)
+        app.redis_client.set(neural_body, response)
         return response
     return app.redis_client.get(neural_body)
 
