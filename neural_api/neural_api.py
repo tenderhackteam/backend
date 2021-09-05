@@ -1,8 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, WebSocket
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import Response
 from data_models.user import UserFromNeuralApi
 from data_models.item import ItemFromNeuralApi
+from neural_api.rpc_client import NeuralRpcClient
 
 import json
 
@@ -32,14 +33,17 @@ async def add_to_cart_endpoint(user: UserFromNeuralApi, item: ItemFromNeuralApi)
 
 
 @router.post("/generate")
-async def neural_generate(user: UserFromNeuralApi):
-    return json.dumps(
-        {
-            "seen": app.seen_basket[user.user_id],
-            "compare": app.compare_basket[user.user_id],
-            "cart": app.cart_basket[user.user_id],
-        }
+async def neural_generate(user: UserFromNeuralApi, top_n: int):
+    neural_rpc = await NeuralRpcClient(app.event_loop).connect()
+    response = await neural_rpc.call(
+        json.dumps(
+            {
+                "item_id": app.seen_basket[user.user_id] + app.compare_basket[user.user_id] + app.cart_basket[user.user_id],
+                "top_n": top_n,
+            }
+        )
     )
+    return response
 
 
 @router.post("/category")
