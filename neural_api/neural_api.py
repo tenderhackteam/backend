@@ -34,30 +34,33 @@ async def add_to_cart_endpoint(user: UserFromNeuralApi, item: ItemFromNeuralApi)
 
 @router.post("/generate_user")
 async def neural_generate(user: UserFromNeuralApi, top_n: int):
-    neural_rpc = await NeuralRpcClient(app.event_loop).connect()
-    response = await neural_rpc.call(
-        json.dumps(
-            {
-                "seen": app.seen_basket[user.user_id] + app.compare_basket[user.user_id] + app.cart_basket[user.user_id],
-                "top_n": top_n,
-            }
-        )
+    neural_body = json.dumps(
+        {
+            "seen": app.seen_basket[user.user_id] + app.compare_basket[user.user_id] + app.cart_basket[user.user_id],
+            "top_n": top_n,
+        }
     )
-    return response
+    if not app.redis_client.exists(neural_body):
+        neural_rpc = await NeuralRpcClient(app.event_loop).connect()
+        response = await neural_rpc.call(neural_body)
+        app.redis_client.set(neural_body)
+        return response
+    return app.redis_client.get(neural_body)
 
 
 @router.get("/generate_item")
 async def neural_generate(top_n: int, item_id: int):
-    neural_rpc = await NeuralRpcClient(app.event_loop).connect()
-    response = await neural_rpc.call(
-        json.dumps(
-            {
-                "item_id": item_id,
-                "top_n": top_n,
-            }
-        )
+    neural_body = json.dumps(
+        {
+            "seen": app.seen_basket[user.user_id] + app.compare_basket[user.user_id] + app.cart_basket[user.user_id],
+            "top_n": top_n,
+        }
     )
-    return response
+    if not app.redis_client.exists(neural_body):
+        neural_rpc = await NeuralRpcClient(app.event_loop).connect()
+        response = await neural_rpc.call(neural_body)
+        return response
+    return app.redis_client.get(neural_body)
 
 
 @router.post("/category")
